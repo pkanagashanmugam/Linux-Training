@@ -73,7 +73,7 @@ help(){
 --HELP
 }
 ```
-**REGULAR EXPRESSION**:
+### **REGULAR EXPRESSION**:
 
 Validate inputs with regular expressions (Check if the file exists and the keyword is not empty and valid).
 The inputs are validated using `echo "$4" | grep -qE '^[a-zA-Z0-9]+$'` to allow only non empty alphanumeric values.
@@ -103,6 +103,53 @@ else
         echo "Try using --help option for more details"
         exit 1
 fi
+```
+**COMMAND LINE ARGUMENTS USING GETOPTS:**
+
+Given below is the alternate code using `getopts` method that can replace the [above section of code](https://github.com/pkanagashanmugam/Linux-Training/blobl/main/Module%205.md#regular-expression)
+Using getopts, the command line arguements are processed. According to the given specifications, there are atmost 4 parameters passed to the file so the getopts
+takes 4 parameters in the order of "a:b:c:d" and using case statement, the arguements are processed and variables are assigned after all possible errors are handled.
+```
+while getopts "a:b:c:d:" opts;do
+        case "${opts}" in
+                a)
+
+                        if [ "${OPTARG}" = "-d" ] || [ "${OPTARG}" = "-f" ];then
+                                if [ $# -ne 8 ];then
+                                        echo "Invalid Format!!!!!"
+                                        echo "Try using --help for more details"
+                                        exit 1
+                                fi
+                                option=${OPTARG}
+                        elif [ "${OPTARG}" = "--help" ];then
+                                help
+                        else
+                                echo "Invalid Format!!"
+                                echo "Try using --help option for more details"
+                                exit 1
+                        fi;;
+                b)
+                        directory_to_search="${OPTARG}";;
+                c)
+                        if [ ! ${OPTARG}="-k" ];then
+                                echo "Invalid Format!!"
+                                echo "Try using --help for more details"
+                                exit 1
+                        fi;;
+                d)
+                        if [ ${OPTARG}="-k" ];then
+                                if ! echo "${OPTARG}" | grep -qE '^[a-zA-Z0-9]+$';then
+                                        echo "Invalid keyword : ${OPTARG}. Only non empty alphanumeric characters are allowed">>errors.log
+                                        exit 1
+                                else
+                                        word_to_search=${OPTARG}
+                                fi
+                        fi;;
+                *)
+                        echo "Invalid Format!! Use --help option for more details";;
+        esac
+done
+search $option $directory_to_search $word_to_search
 ```
 
 ![Screenshot (708)](https://github.com/user-attachments/assets/bc5b4497-a24c-4497-ba7e-9bd34192f7e3)
